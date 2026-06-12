@@ -22,7 +22,13 @@ https://github.com/user-attachments/assets/ceab2515-b8f2-47ec-8d7f-10452759c32a
 
 ## 安装
 
-作为 git 依赖安装：
+推荐：从 PyPI 安装稳定版本：
+
+```bash
+pip install foundation-protocol
+```
+
+开发者也可以安装 GitHub 上的最新源码：
 
 ```bash
 pip install "foundation-protocol @ git+https://github.com/FoundationAgents/foundation-protocol.git"

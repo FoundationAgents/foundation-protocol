@@ -22,7 +22,13 @@ https://github.com/user-attachments/assets/ceab2515-b8f2-47ec-8d7f-10452759c32a
 
 ## Cài đặt
 
-Cài đặt dưới dạng phụ thuộc git:
+Khuyến nghị: cài đặt bản ổn định từ PyPI:
+
+```bash
+pip install foundation-protocol
+```
+
+Nhà phát triển cũng có thể cài đặt mã nguồn mới nhất từ GitHub:
 
 ```bash
 pip install "foundation-protocol @ git+https://github.com/FoundationAgents/foundation-protocol.git"

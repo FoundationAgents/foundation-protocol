@@ -22,7 +22,13 @@ https://github.com/user-attachments/assets/ceab2515-b8f2-47ec-8d7f-10452759c32a
 
 ## 설치
 
-git 의존성으로 설치:
+권장: PyPI에서 안정 버전 설치:
+
+```bash
+pip install foundation-protocol
+```
+
+개발자는 GitHub의 최신 소스도 설치할 수 있습니다:
 
 ```bash
 pip install "foundation-protocol @ git+https://github.com/FoundationAgents/foundation-protocol.git"

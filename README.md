@@ -22,7 +22,13 @@ https://github.com/user-attachments/assets/ceab2515-b8f2-47ec-8d7f-10452759c32a
 
 ## Installation
 
-Install as a git dependency:
+Recommended: install the stable release from PyPI:
+
+```bash
+pip install foundation-protocol
+```
+
+Developers can install the latest source from GitHub:
 
 ```bash
 pip install "foundation-protocol @ git+https://github.com/FoundationAgents/foundation-protocol.git"

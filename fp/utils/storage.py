@@ -2,15 +2,45 @@
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
+
 from loguru import logger
 from pydantic import BaseModel, Field
+
+
+@contextmanager
+def _config_file_lock(lock_path: Path, *, exclusive: bool):
+    """Lock the config lock file on Windows and POSIX systems."""
+    with lock_path.open("a+b") as lock_file:
+        if os.name == "nt":
+            lock_file.seek(0, os.SEEK_END)
+            if lock_file.tell() == 0:
+                lock_file.write(b"\0")
+                lock_file.flush()
+            lock_file.seek(0)
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_LOCK, 1)
+            try:
+                yield
+            finally:
+                lock_file.seek(0)
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            operation = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+            fcntl.flock(lock_file.fileno(), operation)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
 # ============================================================================
@@ -339,12 +369,8 @@ class StorageManager:
         # 使用文件锁保护并发读取
         lock_path = config_path.parent / ".config.lock"
         try:
-            with open(lock_path, "w") as lock_file:
-                fcntl.flock(lock_file.fileno(), fcntl.LOCK_SH)
-                try:
-                    return self._read_json_model(config_path, GlobalConfig)
-                finally:
-                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            with _config_file_lock(lock_path, exclusive=False):
+                return self._read_json_model(config_path, GlobalConfig)
         except Exception as e:
             logger.error(f"Failed to parse config.json: {e}")
             raise
@@ -356,12 +382,8 @@ class StorageManager:
 
         # 使用文件锁保护并发写入
         lock_path = config_path.parent / ".config.lock"
-        with open(lock_path, "w") as lock_file:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-            try:
-                self._write_json_model(config_path, config)
-            finally:
-                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        with _config_file_lock(lock_path, exclusive=True):
+            self._write_json_model(config_path, config)
 
     def _create_default_config(self) -> GlobalConfig:
         """创建默认配置文件"""
